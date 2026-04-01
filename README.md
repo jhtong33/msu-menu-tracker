@@ -1,4 +1,4 @@
-# MSU Menu Scraper
+# MSU Menu Scraper (from cola-byte)
 
 Scrapes [The Gallery at Snyder Phillips](https://eatatstate.msu.edu/menu/The%20Gallery%20at%20Snyder%20Phillips/all) and sends a Gmail notification when a target menu item is found.
 
