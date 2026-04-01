@@ -166,7 +166,7 @@ def send_email(results):
     plain_body, html_body = build_email_body(results)
 
     msg = MIMEMultipart("alternative")
-    msg["Subject"] = f"MSU Menu Alert: {' / '.join(TARGET_ITEMS)}"
+    msg["Subject"] = f"{' / '.join(TARGET_ITEMS)} Reminder"
     msg["From"] = GMAIL_USER
     recipients = [r.strip() for r in NOTIFY_TO.split(",")]
     msg["To"] = ", ".join(recipients)
