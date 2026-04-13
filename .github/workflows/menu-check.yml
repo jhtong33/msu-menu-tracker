@@ -2,7 +2,7 @@ name: MSU Menu Check
 
 on:
   schedule:
-    - cron: '30 4 * * 1'
+    - cron: '30 5 * * 1'
   workflow_dispatch:      # 允許手動觸發
 
 jobs:
