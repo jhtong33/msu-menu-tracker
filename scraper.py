@@ -116,6 +116,13 @@ def check_dates():
                 continue
 
             soup = BeautifulSoup(response.text, "html.parser")
+
+            # Check if the location is open or closed for the day
+            status_el = soup.find(class_="office-hours-status")
+            if status_el and "closed" in status_el.get_text(strip=True).lower():
+                print(f"  Closed: {friendly} — {location}")
+                continue
+
             matches = find_items_at_station(soup)
 
             for key, items in matches.items():
@@ -133,6 +140,11 @@ def check_dates():
 
 def build_email_body(results):
     items_label = " / ".join(TARGET_ITEMS)
+
+    if not results:
+        plain_body = f"No {items_label} is available in the next {DAYS_AHEAD} days."
+        html_body = f"<html><body><p>No <b>{items_label}</b> is available in the next {DAYS_AHEAD} days.</p></body></html>"
+        return plain_body, html_body
 
     plain_lines = [f"{items_label} is available on the following days:\n"]
     html_lines = [
@@ -166,7 +178,10 @@ def send_email(results):
     plain_body, html_body = build_email_body(results)
 
     msg = MIMEMultipart("alternative")
-    msg["Subject"] = f"{' / '.join(TARGET_ITEMS)} Reminder"
+    if results:
+        msg["Subject"] = f"{' / '.join(TARGET_ITEMS)} Reminder"
+    else:
+        msg["Subject"] = f"No {' / '.join(TARGET_ITEMS)} this week"
     msg["From"] = GMAIL_USER
     recipients = [r.strip() for r in NOTIFY_TO.split(",")]
     msg["To"] = ", ".join(recipients)
@@ -189,9 +204,10 @@ def main():
 
     if results:
         print(f"\nFound target items on {len(results)} day(s). Sending email...")
-        send_email(results)
     else:
-        print("\nNo target items found in the next 7 days.")
+        print(f"\nNo target items found in the next {DAYS_AHEAD} days. Sending email...")
+    
+    send_email(results)
 
 
 if __name__ == "__main__":
