@@ -117,11 +117,20 @@ def check_dates():
 
             soup = BeautifulSoup(response.text, "html.parser")
 
-            # Check if the location is open or closed for the day
-            status_el = soup.find(class_="office-hours-status")
-            if status_el and "closed" in status_el.get_text(strip=True).lower():
-                print(f"  Closed: {friendly} — {location}")
-                continue
+            # Check if the location is closed for the day by examining the
+            # hours schedule, not the real-time status banner which changes
+            # throughout the day (e.g. shows "Closed" outside business hours
+            # even for locations that operate that day).
+            hours_div = soup.find("div", class_="office-hours")
+            if hours_div:
+                has_slots = hours_div.find("span", class_="office-hours__item-slots")
+                if not has_slots:
+                    comments = hours_div.find(
+                        "span", class_="office-hours__item-comments"
+                    )
+                    if comments and "closed" in comments.get_text(strip=True).lower():
+                        print(f"  Closed: {friendly} — {location}")
+                        continue
 
             matches = find_items_at_station(soup)
 
